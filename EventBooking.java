@@ -1,5 +1,10 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+// todo
+// - update name event
+// - delete event
+// - joption
+// - save to file text backup generate name by time date on exit
 
 class Booking {
     private String name;
