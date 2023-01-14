@@ -1,22 +1,54 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.UUID;
+
 // todo
 // - update name event
 // - delete event
 // - joption
 // - save to file text backup generate name by time date on exit
+class Payment {
+    private double amount;
+    private String method;
+    private String transactionId;
+
+    public Payment(double amount, String method) {
+        this.amount = amount;
+        this.method = method;
+        this.transactionId = generateTransactionId();
+    }
+
+    public double getAmount() {
+        return this.amount;
+    }
+
+    public String getMethod() {
+        return this.method;
+    }
+
+    public String getTransactionId() {
+        return this.transactionId;
+    }
+
+    private String generateTransactionId() {
+        // Code to generate a unique transaction ID
+        return UUID.randomUUID().toString();
+    }
+}
 
 class Booking {
     private String name;
     private int age;
     private String phone;
     private int tickets;
+    private Payment payment;
 
-    public Booking(String name, int age, String phone, int tickets) {
+    public Booking(String name, int age, String phone, int tickets, Payment payment) {
         this.name = name;
         this.age = age;
         this.phone = phone;
         this.tickets = tickets;
+        this.payment = payment;
     }
 
     public String getName() {
@@ -34,6 +66,14 @@ class Booking {
     public int getTickets() {
         return this.tickets;
     }
+
+    public Payment getPayment() {
+        return this.payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
+    }
 }
 
 class Event {
@@ -42,13 +82,19 @@ class Event {
     private int capacity;
     private int attendees;
     private ArrayList<Booking> bookings;
+    private double ticketPrice;
 
-    public Event(String name, String location, int capacity) {
+    public Event(String name, String location, int capacity, double ticketPrice) {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
         this.attendees = 0;
         this.bookings = new ArrayList<>();
+        this.ticketPrice = ticketPrice;
+    }
+
+    public double getTicketPrice() {
+        return this.ticketPrice;
     }
 
     public String getName() {
@@ -71,11 +117,16 @@ class Event {
         this.bookings.add(booking);
     }
 
-    public boolean book(int numTickets) {
+    public boolean book(String name, int age, String phone, int numTickets, Payment payment) {
         if (numTickets + this.attendees > this.capacity) {
             return false;
         }
+        double cost = this.ticketPrice * numTickets;
+        if (payment.getAmount() < cost)
+            return false;
         this.attendees += numTickets;
+        Booking booking = new Booking(name, age, phone, numTickets, payment);
+        this.bookings.add(booking);
         return true;
     }
 
@@ -124,7 +175,7 @@ class Users {
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
 }
 
 public class EventBooking {
@@ -156,15 +207,18 @@ public class EventBooking {
                 String location = scanner.next();
                 System.out.print("Enter event capacity: ");
                 int capacity = scanner.nextInt();
-                events.add(new Event(name, location, capacity));
+                System.out.print("Enter event ticket price: ");
+                double ticketPrice = scanner.nextDouble();
+                Event event = new Event(name, location, capacity, ticketPrice);
+                events.add(event);
                 System.out.println("Event created successfully!");
             } else if (choice == 2) {
-                // Book tickets for an event
+                // Book an event
                 System.out.print("Enter event name: ");
-                String name = scanner.next();
+                String eventName = scanner.next();
                 Event event = null;
                 for (Event e : events) {
-                    if (e.getName().equals(name)) {
+                    if (e.getName().equals(eventName)) {
                         event = e;
                         break;
                     }
@@ -173,34 +227,41 @@ public class EventBooking {
                     System.out.println("Event not found!");
                     continue;
                 }
-                System.out.print("Enter your name: ");
-                String userName = scanner.next();
-                System.out.print("Enter your age: ");
+                System.out.print("Enter name: ");
+                String name = scanner.next();
+                System.out.print("Enter age: ");
                 int age = scanner.nextInt();
-                System.out.print("Enter your phone number: ");
+                System.out.print("Enter phone: ");
                 String phone = scanner.next();
                 System.out.print("Enter number of tickets: ");
                 int numTickets = scanner.nextInt();
-                Booking booking = new Booking(userName, age, phone, numTickets);
-                event.addBooking(booking);
-                if (!event.book(numTickets)) {
-                    System.out.println("Booking failed. Not enough capacity.");
-                } else {
+                System.out.print("Enter payment method: ");
+                String paymentMethod = scanner.next();
+                System.out.print("Enter payment amount: ");
+                double paymentAmount = scanner.nextDouble();
+                Payment payment = new Payment(paymentAmount, paymentMethod);
+                if (event.book(name, age, phone, numTickets, payment)) {
                     System.out.println("Booking successful!");
+                } else {
+                    System.out.println("Booking failed. Not enough seats available or payment amount is insufficient.");
                 }
             } else if (choice == 3) {
                 // View events
                 for (Event e : events) {
-                    System.out.println("Event: " + e.getName() + " at " + e.getLocation() + " has capacity for "
-                            + e.getCapacity() + " attendees and currently has " + e.getAttendees() + " attendees.");
+                    System.out.println("Event name: " + e.getName());
+                    System.out.println("Event location: " + e.getLocation());
+                    System.out.println("Event capacity: " + e.getCapacity());
+                    System.out.println("Event attendees: " + e.getAttendees());
+                    System.out.println("Event ticket price: " + e.getTicketPrice());
+                    System.out.println("");
                 }
             } else if (choice == 4) {
-                // View bookings for an event
+                // View bookings for event
                 System.out.print("Enter event name: ");
-                String name = scanner.next();
+                String eventName = scanner.next();
                 Event event = null;
                 for (Event e : events) {
-                    if (e.getName().equals(name)) {
+                    if (e.getName().equals(eventName)) {
                         event = e;
                         break;
                     }
@@ -211,25 +272,32 @@ public class EventBooking {
                 }
                 ArrayList<Booking> bookings = event.getBookings();
                 for (Booking b : bookings) {
-                    System.out.println("Booking by: " + b.getName() + " Age: " + b.getAge() + " Phone: " + b.getPhone()
-                            + " Tickets: " + b.getTickets());
+                    System.out.println("Name: " + b.getName());
+                    System.out.println("Age: " + b.getAge());
+                    System.out.println("Phone: " + b.getPhone());
+                    System.out.println("Number of tickets: " + b.getTickets());
+                    Payment payment = b.getPayment();
+                    System.out.println("Payment amount: " + payment.getAmount());
+                    System.out.println("Payment method: " + payment.getMethod());
+                    System.out.println("Transaction ID: " + payment.getTransactionId());
+                    System.out.println("");
                 }
-                System.out.println("End of bookings for event " + event.getName());
             } else if (choice == 5) {
-                // Add a new user
-                System.out.print("Enter user name: ");
+                // Add user
+                System.out.print("Enter name: ");
                 String name = scanner.next();
-                System.out.print("Enter user age: ");
+                System.out.print("Enter age: ");
                 int age = scanner.nextInt();
-                System.out.print("Enter user phone: ");
+                System.out.print("Enter phone: ");
                 String phone = scanner.next();
-                System.out.print("Enter user email: ");
+                System.out.print("Enter email: ");
                 String email = scanner.next();
-                users.add(new Users(name, age, phone, email));
+                Users user = new Users(name, age, phone, email);
+                users.add(user);
                 System.out.println("User added successfully!");
             } else if (choice == 6) {
-                // Update a user
-                System.out.print("Enter user name: ");
+                // Update user
+                System.out.print("Enter name: ");
                 String name = scanner.next();
                 Users user = null;
                 for (Users u : users) {
@@ -244,20 +312,14 @@ public class EventBooking {
                 }
                 System.out.print("Enter new age: ");
                 int age = scanner.nextInt();
+                user.setAge(age);
                 System.out.print("Enter new phone: ");
                 String phone = scanner.next();
-                System.out.print("Enter new email: ");
-                String email = scanner.next();
-                // user.age = age;
-                // user.phone = phone;
-                // user.email = email;
-                user.setAge(age);
                 user.setPhone(phone);
-                user.setEmail(email);
                 System.out.println("User updated successfully!");
             } else if (choice == 7) {
-                // Delete a user
-                System.out.print("Enter user name: ");
+                // Delete user
+                System.out.print("Enter name: ");
                 String name = scanner.next();
                 Users user = null;
                 for (Users u : users) {
@@ -273,18 +335,19 @@ public class EventBooking {
                 users.remove(user);
                 System.out.println("User deleted successfully!");
             } else if (choice == 8) {
-                // View all users
+                // View users
                 for (Users u : users) {
-                    System.out.println("Name: " + u.getName() + " Age: " + u.getAge() + " Phone: " + u.getPhone()
-                            + " Email: " + u.getEmail());
+                    System.out.println("Name: " + u.getName());
+                    System.out.println("Age: " + u.getAge());
+                    System.out.println("Phone: " + u.getPhone());
+                    System.out.println("Email: " + u.getEmail());
+                    System.out.println("");
                 }
-                System.out.println("End of users list.");
             } else if (choice == 9) {
-                // Exit the program
+                // Exit
                 running = false;
-                System.out.println("Exiting program...");
             } else {
-                System.out.println("Invalid choice! Please enter a valid choice.");
+                System.out.println("Invalid choice. Please enter a valid choice.");
             }
         }
         scanner.close();
