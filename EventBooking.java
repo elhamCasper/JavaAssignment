@@ -84,10 +84,54 @@ class Event {
     }
 }
 
+class Users {
+    private String name;
+    private int age;
+    private String phone;
+    private String email;
+
+    public Users(String name, int age, String phone, String email) {
+        this.name = name;
+        this.age = age;
+        this.phone = phone;
+        this.email = email;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getAge() {
+        return this.age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getPhone() {
+        return this.phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+}
+
 public class EventBooking {
 
     public static void main(String[] args) {
         ArrayList<Event> events = new ArrayList<>();
+        ArrayList<Users> users = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
@@ -96,7 +140,11 @@ public class EventBooking {
             System.out.println("2. Book event");
             System.out.println("3. View events");
             System.out.println("4. View bookings for event");
-            System.out.println("5. Exit");
+            System.out.println("5. Add user");
+            System.out.println("6. Update user");
+            System.out.println("7. Delete user");
+            System.out.println("8. View users");
+            System.out.println("9. Exit");
             System.out.print("Enter a choice: ");
             int choice = scanner.nextInt();
 
@@ -122,59 +170,121 @@ public class EventBooking {
                     }
                 }
                 if (event == null) {
-                    System.out.println("Sorry, no such event exists.");
+                    System.out.println("Event not found!");
                     continue;
                 }
+                System.out.print("Enter your name: ");
+                String userName = scanner.next();
+                System.out.print("Enter your age: ");
+                int age = scanner.nextInt();
+                System.out.print("Enter your phone number: ");
+                String phone = scanner.next();
                 System.out.print("Enter number of tickets: ");
                 int numTickets = scanner.nextInt();
+                Booking booking = new Booking(userName, age, phone, numTickets);
+                event.addBooking(booking);
                 if (!event.book(numTickets)) {
-                    System.out.println("Sorry, there are not enough tickets available.");
+                    System.out.println("Booking failed. Not enough capacity.");
                 } else {
                     System.out.println("Booking successful!");
-                    System.out.print("Enter your name: ");
-                    String bookerName = scanner.next();
-                    System.out.print("Enter your age: ");
-                    int bookerAge = scanner.nextInt();
-                    System.out.print("Enter your phone number: ");
-                    String bookerPhone = scanner.next();
-                    Booking booking = new Booking(bookerName, bookerAge, bookerPhone, numTickets);
-                    event.addBooking(booking);
                 }
             } else if (choice == 3) {
-                // View all events
+                // View events
                 for (Event e : events) {
-                    System.out.println(
-                            "Event: " + e.getName() + " (" + e.getAttendees() + "/" + e.getCapacity() + " booked)");
+                    System.out.println("Event: " + e.getName() + " at " + e.getLocation() + " has capacity for "
+                            + e.getCapacity() + " attendees and currently has " + e.getAttendees() + " attendees.");
                 }
             } else if (choice == 4) {
-                // View bookings for event
+                // View bookings for an event
                 System.out.print("Enter event name: ");
                 String name = scanner.next();
                 Event event = null;
                 for (Event e : events) {
-                  if (e.getName().equals(name)) {
-                    event = e;
-                    break;
-                  }
+                    if (e.getName().equals(name)) {
+                        event = e;
+                        break;
+                    }
                 }
                 if (event == null) {
-                  System.out.println("Sorry, no such event exists.");
-                  continue;
+                    System.out.println("Event not found!");
+                    continue;
                 }
                 ArrayList<Booking> bookings = event.getBookings();
-                if (bookings.isEmpty()) {
-                  System.out.println("There are no bookings for this event.");
-                } else {
-                  System.out.println("Bookings for event: " + event.getName());
-                  for (Booking booking : bookings) {
-                    System.out.println("- " + booking.getName() + " (" + booking.getTickets() + " tickets)");
-                  }
+                for (Booking b : bookings) {
+                    System.out.println("Booking by: " + b.getName() + " Age: " + b.getAge() + " Phone: " + b.getPhone()
+                            + " Tickets: " + b.getTickets());
                 }
-              } else if (choice == 5) {
-                // Exit
+                System.out.println("End of bookings for event " + event.getName());
+            } else if (choice == 5) {
+                // Add a new user
+                System.out.print("Enter user name: ");
+                String name = scanner.next();
+                System.out.print("Enter user age: ");
+                int age = scanner.nextInt();
+                System.out.print("Enter user phone: ");
+                String phone = scanner.next();
+                System.out.print("Enter user email: ");
+                String email = scanner.next();
+                users.add(new Users(name, age, phone, email));
+                System.out.println("User added successfully!");
+            } else if (choice == 6) {
+                // Update a user
+                System.out.print("Enter user name: ");
+                String name = scanner.next();
+                Users user = null;
+                for (Users u : users) {
+                    if (u.getName().equals(name)) {
+                        user = u;
+                        break;
+                    }
+                }
+                if (user == null) {
+                    System.out.println("User not found!");
+                    continue;
+                }
+                System.out.print("Enter new age: ");
+                int age = scanner.nextInt();
+                System.out.print("Enter new phone: ");
+                String phone = scanner.next();
+                System.out.print("Enter new email: ");
+                String email = scanner.next();
+                // user.age = age;
+                // user.phone = phone;
+                // user.email = email;
+                user.setAge(age);
+                user.setPhone(phone);
+                user.setEmail(email);
+                System.out.println("User updated successfully!");
+            } else if (choice == 7) {
+                // Delete a user
+                System.out.print("Enter user name: ");
+                String name = scanner.next();
+                Users user = null;
+                for (Users u : users) {
+                    if (u.getName().equals(name)) {
+                        user = u;
+                        break;
+                    }
+                }
+                if (user == null) {
+                    System.out.println("User not found!");
+                    continue;
+                }
+                users.remove(user);
+                System.out.println("User deleted successfully!");
+            } else if (choice == 8) {
+                // View all users
+                for (Users u : users) {
+                    System.out.println("Name: " + u.getName() + " Age: " + u.getAge() + " Phone: " + u.getPhone()
+                            + " Email: " + u.getEmail());
+                }
+                System.out.println("End of users list.");
+            } else if (choice == 9) {
+                // Exit the program
                 running = false;
+                System.out.println("Exiting program...");
             } else {
-                System.out.println("Invalid choice. Please try again.");
+                System.out.println("Invalid choice! Please enter a valid choice.");
             }
         }
         scanner.close();
