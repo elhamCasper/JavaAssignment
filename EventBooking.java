@@ -202,7 +202,7 @@ public class EventBooking {
         ArrayList<Users> users = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
-        VIPEvent vipEvent = new VIPEvent("New Year's Eve VIP Party", "Level 51, THE FACE Suites", 100, 150.00, "The VIP Lounge");
+        VIPEvent vipEvent = new VIPEvent("New_Year", "Level 51, THE FACE Suites", 100, 150.00, "The VIP Lounge");
         events.add(vipEvent);
 
         while (running) {
