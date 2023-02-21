@@ -178,6 +178,23 @@ class Users {
 
 }
 
+class VIPEvent extends Event {
+    private String vipArea;
+
+    public VIPEvent(String name, String location, int capacity, double ticketPrice, String vipArea) {
+        super(name, location, capacity, ticketPrice);
+        this.vipArea = vipArea;
+    }
+
+    public String getVipArea() {
+        return vipArea;
+    }
+
+    public void setVipArea(String vipArea) {
+        this.vipArea = vipArea;
+    }
+}
+
 public class EventBooking {
 
     public static void main(String[] args) {
@@ -185,6 +202,8 @@ public class EventBooking {
         ArrayList<Users> users = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
+        VIPEvent vipEvent = new VIPEvent("New Year's Eve VIP Party", "The Ritz", 100, 200.0, "The VIP Lounge");
+        events.add(vipEvent);
 
         while (running) {
             System.out.println("1. Create event");
