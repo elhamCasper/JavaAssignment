@@ -220,17 +220,30 @@ public class EventBooking {
 
             if (choice == 1) {
                 // Create a new event
+                System.out.println("1. Regular event");
+                System.out.println("2. VIP event");
+                System.out.print("Enter event type: ");
+                int eventType = scanner.nextInt();
+            
                 System.out.print("Enter event name: ");
                 String name = scanner.next();
                 System.out.print("Enter event location: ");
                 String location = scanner.next();
                 System.out.print("Enter event capacity: ");
                 int capacity = scanner.nextInt();
-                System.out.print("Enter event ticket price: ");
+                System.out.print("Enter ticket price: ");
                 double ticketPrice = scanner.nextDouble();
-                Event event = new Event(name, location, capacity, ticketPrice);
-                events.add(event);
-                System.out.println("Event created successfully!");
+            
+                if (eventType == 1) {
+                    Event event = new Event(name, location, capacity, ticketPrice);
+                    events.add(event);
+                } else if (eventType == 2) {
+                    System.out.print("Enter VIP area: ");
+                    String vipArea = scanner.next();
+                    VIPEvent event = new VIPEvent(name, location, capacity, ticketPrice, vipArea);
+                    events.add(event);
+                }
+            
             } else if (choice == 2) {
                 // Book an event
                 System.out.print("Enter event name: ");
